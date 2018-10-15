@@ -20,6 +20,7 @@ $(document).ready(function () {
   var photoArr = []; // Contains the photo filenames
 
   var clickPhoto = -1; // will be zero or positve if a gallery photo is clicked
+  var photoMaxed = false;
 
   var galleryMaxWidth = "117px";
   /*******************************************************************/
@@ -139,23 +140,72 @@ $(document).ready(function () {
   /*******************************************************************/
 
   /********************************************************************
-  Code for processing click on NEXT button
+  Code for processing a click on the currently displa7yed photo
   ********************************************************************/
-  $("#next").on("click", function () {
+  $("#photos").on("click", "div img", function () {
+
+    if (photoMaxed) {
+      $("#prev").css("display", "block");
+      $("#next").css("display", "block");
+      $("#footerbox").removeAttr("style");
+      if ($("#gallery").css("right") != "-120px") {
+        $("#gallery").css("display", "flex");
+      }
+      $("#photos").removeAttr("style");
+      photoMaxed = false;
+    } else {
+      $("#photos").css({
+        "position": "absolute",
+        "top": "0px",
+        "left": "0px",
+        "height": "100%",
+        "width": "100%",
+        "z-index": "20"
+      });
+      $("#gallery").css("display", "none");
+      $("#footerbox").css("display", "none");
+      $("#next").css("display", "none");
+      $("#prev").css("display", "none");
+      photoMaxed = true;
+    }
+
+  });
+  /*******************************************************************/
+
+  /********************************************************************
+  Code for processing clicks on NEXT and PREV button
+  ********************************************************************/
+  $("#next, #prev").on("click", function () {
+
+    direction = $(this).attr("id");
 
     var $curPhoto = $("#photo" + currentPhoto);
+
     if (clickPhoto >= 0) {
       currentPhoto = clickPhoto;
       clickPhoto = -1;
     } else {
-      if (currentPhoto == maxPhoto) {
-        currentPhoto = 0;
+
+      if (direction == "next") {
+        if (currentPhoto == maxPhoto) {
+          currentPhoto = 0;
+        } else {
+          currentPhoto += 1;
+        }
       } else {
-        currentPhoto += 1;
+        if (currentPhoto == 0) {
+          currentPhoto = maxPhoto;
+        } else {
+          currentPhoto -= 1;
+        }
       }
     }
+
     var $nextPhoto = $("#photo" + currentPhoto);
     var newLeft = $curPhoto.width() * (-1);
+    if (direction == "prev") {
+      newLeft *= (-1);
+    }
 
     var photoURL = retrievePhotoDIR + '/' + photoArr[currentPhoto];
     $nextPhoto.css({
@@ -200,71 +250,7 @@ $(document).ready(function () {
     });
 
   });
-
-  /********************************************************************
-  Code for processing click on PREV button
-  ********************************************************************/
-  $("#prev").on("click", function () {
-
-    var $curPhoto = $("#photo" + currentPhoto);
-    if (clickPhoto >= 0) {
-      currentPhoto = clickPhoto;
-      clickPhoto = -1;
-    } else {
-      if (currentPhoto == 0) {
-        currentPhoto = maxPhoto;
-      } else {
-        currentPhoto -= 1;
-      }
-    }
-    var $nextPhoto = $("#photo" + currentPhoto);
-    var newLeft = $curPhoto.width() * (-1);
-
-    var photoURL = retrievePhotoDIR + '/' + photoArr[currentPhoto];
-    $nextPhoto.css({
-      "left": newLeft,
-      "z-index": "2",
-      "opacity": "0"
-    });
-    $nextPhoto.find("img:first-child").attr("src", photoURL);
-
-    makeVisible(currentPhoto);
-
-    $("#loader").animate({
-      "width": "100%"
-    }, loadDelay, function () {
-
-      $curPhoto.animate({
-        "opacity": "0",
-        "left": newLeft * (-1),
-        "z-index": "1"
-      }, loadDelay);
-
-      $nextPhoto.animate({
-        "opacity": "1",
-        "left": "0px",
-        "z-index": "2"
-      }, loadDelay);
-
-      $("#gallery span img").css({
-        "-webkit-filter": "none",
-        "filter": "none"
-      });
-
-      $("#gallery span[data-index='" + currentPhoto + "'] img").css({
-        "-webkit-filter": "sepia(100%)",
-        "filter": "sepia(100%)"
-      });
-
-      $("#photofilename").text(photoArr[currentPhoto]);
-
-      $("#loader").css("width", "0%");
-
-    });
-
-  });
   /*******************************************************************/
-
 
   /********************************************************************
   Code for processing clicks on PLAY and STOP buttons
@@ -311,6 +297,10 @@ $(document).ready(function () {
         "flex-direction": "row",
         "flex-wrap": "wrap"
       });
+      $("#next").css({
+        "right": "0px"
+      });
+
       $("#footerbox .fa-play").removeClass("activated");
       $("#footerbox .fa-indent").removeClass("activated");
       $("#gallery").data("mode", "tiled");
@@ -326,6 +316,7 @@ $(document).ready(function () {
       $("#footerbox .fa-indent").addClass("activated");
       $("#gallery").data("mode", "column");
       $("#photos").show();
+      $(window).trigger("resize");
     }
 
   });
@@ -344,14 +335,16 @@ $(document).ready(function () {
         "right": "-120px"
       }, 300, "linear", function () {
         $("#gallery").css("display", "none");
-      });
-      $("#next").css({
-        "right": "0px"
+        $("#next").css({
+          "right": "0px"
+        });
       });
       $("#footerbox .fa-th").removeClass("activated");
     } else {
       $(this).removeClass("fa-outdent").addClass("fa-indent")
-      $("#gallery").css("display", "flex").animate({
+      $("#gallery").css("display", "flex");
+      $(window).trigger("resize");
+      $("#gallery").animate({
         "right": "0px"
       }, 300, "linear");
       $("#next").css({
@@ -388,6 +381,10 @@ $(document).ready(function () {
   $(window).on("resize", isGalleryScrollable);
 
   function isGalleryScrollable() {
+
+    if ($("#gallery").css("display") == "none") {
+      return;
+    }
 
     if ($("#gallery").data("mode") != "tiled") {
 

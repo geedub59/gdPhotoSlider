@@ -1,4 +1,4 @@
-# gdPhotoSlider v1.0.0
+# gdPhotoSlider v1.0.1 2018/10/15
 
 A simple photo viewer that allows the photos to be grouped into albums.
 
@@ -7,7 +7,7 @@ A simple photo viewer that allows the photos to be grouped into albums.
 1. jQuery v3.3.1 - for DOM manipulation and animations
 2. Bootstrap v4.1.3 - for some layout assistance
 3. FontAwesome v5.3.1 - for buttons, etc.
-4. mobile-detect v1.4.3 - for use indetermining if a mobile device is bein used
+4. mobile-detect v1.4.3 - for use in determining if a mobile device is being used
 
 # Album structure
 
@@ -47,6 +47,7 @@ Hide Gallery:                       click to hide the gallery column (initial st
 Show Gallery:                       click to shoe the gallery column (initial state - hidden)
 Previous button:                    click to show the photo alphabetically prior to the current photo (will loop to the end from the first photo)
 Next button:                        click to show the photo alphabetically after the current photo (will loop to the beginning from the last photo)
+Main Photo:                         click on the main photo to toggle full display; you can start paying then click on the photo and the play will continue
 
 # License
 
